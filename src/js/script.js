@@ -5,7 +5,6 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import datGui from 'https://cdn.skypack.dev/dat.gui';
 
 // Import de l'image
-import nebula from '../img/nebula.jpg';
 import stars from '../img/stars.jpg';
 import nebuleuse from '../img/nebuleuse.jpg';
 
