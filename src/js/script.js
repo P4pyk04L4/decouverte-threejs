@@ -5,8 +5,10 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import datGui from 'https://cdn.skypack.dev/dat.gui';
 
 // Import de l'image
-import stars from '../img/stars.jpg';
-import nebuleuse from '../img/nebuleuse.jpg';
+// import stars from '../img/stars.jpg';
+// import nebuleuse from '../img/nebuleuse.jpg';
+// import nebula from '../img/nebula.jpg';
+// import stars from '../img/stars.jpg';
 
 const renderer = new THREE.WebGLRenderer();
 
@@ -107,9 +109,13 @@ scene.fog = new THREE.FogExp2(0xFFFFFF, 0.03);
 
 // COULEUR DE FOND
 
-// renderer.setClearColor(0xefefbe);
-const textureLoader = new THREE.TextureLoader();
-scene.background = textureLoader.load(stars);
+renderer.setClearColor(0xefefbe);
+// const nebuleuse = new Image();
+// nebuleuse.src = '../img/nebuleuse.jpg';
+// const textureLoader = new THREE.TextureLoader();
+// scene.background = textureLoader.load(nebuleuse);
+// const bgTexture = textureLoader.load(nebuleuse);
+// scene.background = bgTexture;
 
 // 🎛️ DAT.GUI - Palette d'options
 const gui = new datGui.GUI();
