@@ -4,7 +4,10 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 // import * as dat from 'dat.gui';
 import datGui from 'https://cdn.skypack.dev/dat.gui';
 
-
+// Import de l'image
+import nebula from '../img/nebula.jpg';
+import stars from '../img/stars.jpg';
+import nebuleuse from '../img/nebuleuse.jpg';
 
 const renderer = new THREE.WebGLRenderer();
 
@@ -65,14 +68,14 @@ sphere.position.set(2, 2 , 0);
 scene.add(sphere);
 sphere.castShadow = true;       // On indique la possibilité d'envoyer de l'ombre
 
-// LUMIERES !!!
+// 💡 LUMIERES !!!
 
 // Lumière directionnelle
 
 const ambientLight = new THREE.AmbientLight(0x333333);
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xFFFFFFF, 0.8);
+const directionalLight = new THREE.DirectionalLight(0xFFFFFFF, 0.6);
 scene.add(directionalLight);
 directionalLight.position.set(-30, 50,0)
 directionalLight.castShadow = true;     // On indique la possibilité d'envoyer des ombres
@@ -87,15 +90,38 @@ scene.add(dLightShadowHelper);
 
 // Lumière spotlight
 
+const spotLight = new THREE.SpotLight(0xFFFFFF);
+scene.add(spotLight);
+spotLight.position.set(50, 100, 0);
+spotLight.castShadow = true;
+// L'ombre est malheureusement pixélisée, pour ce faire, nous pouvons réduire l'angle
+spotLight.angle = 0.2;
 
+const sLightHelper = new THREE.SpotLightHelper(spotLight);
+scene.add(sLightHelper);
 
-// DAT.GUI - Palette d'options
+// ☁️ BROUILLARD
+
+// Deux types, l'un seon la hauteur, l'autre exponentiel selon la distance avec la caméra
+// scene.fog = new THREE.Fog(0xFFFFFF, 0, 70);
+scene.fog = new THREE.FogExp2(0xFFFFFF, 0.03);
+
+// COULEUR DE FOND
+
+// renderer.setClearColor(0xefefbe);
+const textureLoader = new THREE.TextureLoader();
+scene.background = textureLoader.load(stars);
+
+// 🎛️ DAT.GUI - Palette d'options
 const gui = new datGui.GUI();
 
 const options = {
     sphereColor: '#ffea00',
     wireframe: false,
-    speed: 0.01
+    speed: 0.01,
+    angle: 0.2,
+    penumbra: 0,
+    intensity: 1
 };
 
 gui.addColor(options, 'sphereColor').onChange(function(e){
@@ -105,6 +131,9 @@ gui.add(options, 'wireframe').onChange(function(e){
     sphere.material.wireframe = e;
 })
 gui.add(options, 'speed', 0, 0.1);
+gui.add(options, 'angle', 0, 0.1);
+gui.add(options, 'penumbra', 0, 1);
+gui.add(options, 'intensity', 0, 1);
 
 // On peut s'aider d'un gridHelper (taille, divisions)
 const gridHelper = new THREE.GridHelper(30);
@@ -125,6 +154,12 @@ function animate(time) {
     // step += speed;
     step += options.speed;
     sphere.position.y = 10 * Math.abs(Math.sin(step));
+
+    // Autres options
+    spotLight.angle = options.angle;
+    spotLight.penumbra = options.penumbra;
+    spotLight.intensity = options.intensity;
+    sLightHelper.update();
 
     // On affiche la mise à jour
     renderer.render(scene, camera);
