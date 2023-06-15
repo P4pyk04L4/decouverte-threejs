@@ -6,7 +6,7 @@ import datGui from 'https://cdn.skypack.dev/dat.gui';
 
 // Import de l'image
 // import stars from '../img/stars.jpg';
-// import nebuleuse from '../img/nebuleuse.jpg';
+import nebuleuse from '../img/nebuleuse.jpg';
 // import nebula from '../img/nebula.jpg';
 // import stars from '../img/stars.jpg';
 
@@ -112,10 +112,15 @@ scene.fog = new THREE.FogExp2(0xFFFFFF, 0.03);
 renderer.setClearColor(0xefefbe);
 // const nebuleuse = new Image();
 // nebuleuse.src = '../img/nebuleuse.jpg';
-// const textureLoader = new THREE.TextureLoader();
-// scene.background = textureLoader.load(nebuleuse);
+const textureLoader = new THREE.TextureLoader();
+scene.background = textureLoader.load(nebuleuse);
 // const bgTexture = textureLoader.load(nebuleuse);
 // scene.background = bgTexture;
+
+    // const texture = new THREE.TextureLoader().load('img/nebula.jpg' ); 
+    // // immediately use the texture for material creation 
+
+    // const material = new THREE.MeshBasicMaterial( { map:texture } );
 
 // 🎛️ DAT.GUI - Palette d'options
 const gui = new datGui.GUI();
