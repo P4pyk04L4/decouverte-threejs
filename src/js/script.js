@@ -4,11 +4,8 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 // import * as dat from 'dat.gui';
 import datGui from 'https://cdn.skypack.dev/dat.gui';
 
-// Import de l'image
-// import stars from '../img/stars.jpg';
-import nebuleuse from '../img/nebuleuse.jpg';
-// import nebula from '../img/nebula.jpg';
-// import stars from '../img/stars.jpg';
+import {OBJLoader} from 'three/addons/loaders/OBJLoader.js';
+import {MTLLoader} from 'three/addons/loaders/MTLLoader.js';
 
 const renderer = new THREE.WebGLRenderer();
 
@@ -105,22 +102,34 @@ scene.add(sLightHelper);
 
 // Deux types, l'un seon la hauteur, l'autre exponentiel selon la distance avec la caméra
 // scene.fog = new THREE.Fog(0xFFFFFF, 0, 70);
-scene.fog = new THREE.FogExp2(0xFFFFFF, 0.03);
+scene.fog = new THREE.FogExp2(0xFFFFFF, 0.01);
 
-// COULEUR DE FOND
+// COULEUR et IMAGE DE FOND
 
 renderer.setClearColor(0xefefbe);
-// const nebuleuse = new Image();
-// nebuleuse.src = '../img/nebuleuse.jpg';
-const textureLoader = new THREE.TextureLoader();
-scene.background = textureLoader.load(nebuleuse);
-// const bgTexture = textureLoader.load(nebuleuse);
+
+const loader = new THREE.TextureLoader();
+// const bgTexture = loader.load('./img/nebuleuse.jpg');
 // scene.background = bgTexture;
+const cubeTextureLoader = new THREE.CubeTextureLoader()
+scene.background = cubeTextureLoader.load([
+    './img/stars.jpg',
+    './img/stars.jpg',
+    './img/stars.jpg',
+    './img/stars.jpg',
+    './img/stars.jpg',
+    './img/stars.jpg'
+]);
 
-    // const texture = new THREE.TextureLoader().load('img/nebula.jpg' ); 
-    // // immediately use the texture for material creation 
-
-    // const material = new THREE.MeshBasicMaterial( { map:texture } );
+const box2Geometry = new THREE.BoxGeometry(4,4,4);
+const box2Material = new THREE.MeshBasicMaterial({
+    // color: 0x00FF00,
+    // map: loader.load('./img/nebula.jpg')
+});
+const box2 = new THREE.Mesh(box2Geometry, box2Material);
+scene.add(box2);
+box2.position.set(0,8,-7);
+box2.material.map = loader.load('./img/nebula.jpg');
 
 // 🎛️ DAT.GUI - Palette d'options
 const gui = new datGui.GUI();
@@ -153,6 +162,35 @@ scene.add(gridHelper);
 let step = 0;
 // let speed = 0.01;        // On la passe dans les propriétés
 
+// SELECTIONNER DES OBJETS DE LA SCENE
+const mousePosition = new THREE.Vector2();
+
+window.addEventListener('mousemove', function(e) {
+    mousePosition.x = (e.clientX / this.window.innerWidth) * 2 - 1;
+    mousePosition.y = (e.clientY / this.window.innerHeight) * 2 - 1;
+});
+
+const rayCaster = new THREE.Raycaster();
+
+// On peut récupérer les id des objets et faire des changement au survol si on veut
+const sphereId = sphere.id;
+box2.name = "theBox";
+
+// OBJET 3D
+
+const objLoader = new OBJLoader();
+const mtlLoader = new MTLLoader();
+mtlLoader.load('./assets/airplane.mtl', (mtl) => {
+    mtl.preload();
+    objLoader.setMaterials(mtl);
+    objLoader.load('./assets/airplane.obj', (root) => {
+    scene.add(root);
+    });
+});
+
+
+// FONCTION D'ANIMATION
+
 function animate(time) {
     // Rotation de la BOX
     // On peut gérer le temps de la rotation en ajoutant l'argument 'time'
@@ -171,6 +209,22 @@ function animate(time) {
     spotLight.intensity = options.intensity;
     sLightHelper.update();
 
+    // On ajoute le RayCaster
+    rayCaster.setFromCamera(mousePosition, camera);
+    const intersect = rayCaster.intersectObjects(scene.children);
+    // console.log(intersect);
+
+    // Animation au survol
+    for (let i = 0; i < intersect.length; i++){
+        if(intersect[i].object.id === sphereId){
+            intersect[i].object.material.color.set(0xFF0000);
+        }
+        if(intersect[i].object.name === "theBox"){
+            intersect[i].object.rotation.x = time / 1000;
+            intersect[i].object.rotation.y = time / 1000;
+        }
+    }
+
     // On affiche la mise à jour
     renderer.render(scene, camera);
 
@@ -180,3 +234,10 @@ renderer.setAnimationLoop(animate);
 
 // Pour permettre la rotation libre par la souris, on ajoute le module OrbitControl
 
+// RESPONSIVE !!!
+
+window.addEventListener('resize', function() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+})
